@@ -39,11 +39,25 @@ app.get('/rides', (req, res) => {
   res.status(200).send(JSON.stringify(rides))
 })
 
+app.get('/rides/:date', (req, res) => {
     try {
-      const queryDate = validateDate(req.query.date as string)
-      res
-        .status(200)
-        .send(rides.filter((ride) => getUnixTime(ride.date) === getUnixTime(queryDate)))
+    const queryDate = validateDate(req.params.date as string)
+
+    const accumulatedCostAndDistance = rides
+      .filter((ride) => validateDate(ride.date) === validateDate(queryDate))
+      .reduce(
+        (acc, curr) => {
+          acc.distance += curr.distance
+          acc.cost += curr.cost
+          return acc
+        },
+        {
+          cost: 0,
+          distance: 0,
+        }
+      )
+
+    res.status(200).send(accumulatedCostAndDistance)
     } catch (error) {
       res.status(400).send(error)
     }
