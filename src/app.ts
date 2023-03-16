@@ -1,8 +1,14 @@
 import { getUnixTime } from 'date-fns';
 
 import express from 'express';
-import { validateCost, validateDate, validateDistance, validateEndAddress, validateStartAddress } from './input-validations';
-import IRide from './models/Ride';
+import {
+  validateCost,
+  validateDate,
+  validateDistance,
+  validateEndAddress, 
+  validateStartAddress } 
+  from './input-validations';
+import Ride from './models/Ride';
 
 const app = express()
 const port = 3004;
@@ -11,11 +17,11 @@ let rides: IRide[] = []
 app.use(express.json());
 app.use(express.urlencoded());
 
-app.post('/add',async (req, res) => {
+app.post('/rides', async (req, res) => {
+  const payload = req.body
+
     try {
-        const payload = await req.body();
-        console.log(payload)
-        const ride: IRide = {
+    const ride: Ride = {
             startAddress: validateStartAddress(payload.startAddress as string),
             endAddress: validateEndAddress(payload.endAddress as string),
             cost: validateCost(payload.cost as string),
@@ -23,12 +29,16 @@ app.post('/add',async (req, res) => {
             distance: validateDistance(payload.distance as string),
         }
         rides.push(ride)
-        res.status(200).send(rides)
+    res.status(200).send()
     } catch (error) {
         res.status(400).send(error)
     }
 })
-app.get('/report-daily', (req, res) => {
+
+app.get('/rides', (req, res) => {
+  res.status(200).send(JSON.stringify(rides))
+})
+
     try {
       const queryDate = validateDate(req.query.date as string)
       res
