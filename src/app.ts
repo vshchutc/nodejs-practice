@@ -2,6 +2,7 @@ import { getUnixTime } from 'date-fns';
 
 import express from 'express';
 import {
+  stringToDate,
   validateCost,
   validateDate,
   validateDistance,
@@ -63,17 +64,34 @@ app.get('/rides/:date', (req, res) => {
     }
   })
   
-  app.get('/report-range', (req, res) => {
+app.get('/rides/:fromdate/:todate', (req, res) => {
     try {
-      const queryFromDate = validateDate(req.query.fromDate as string)
-      const queryToDate = validateDate(req.query.toDate as string)
-      res
-        .status(200)
-        .send(
-          rides.filter(
-            (ride) => getUnixTime(ride.date) >= getUnixTime(queryFromDate) && getUnixTime(ride.date) <= getUnixTime(queryToDate)
+    const queryFromDate = validateDate(req.params.fromdate as string)
+    const queryToDate = validateDate(req.params.todate as string)
+
+    if (stringToDate(queryFromDate) > stringToDate(queryToDate)) {
+      throw new Error('from date cannot be greater than to date')
+    }
+
+    const accumulatedCostAndDistance = rides
+      .filter(
+        (ride) =>
+          stringToDate(ride.date) >= stringToDate(queryFromDate) &&
+          stringToDate(ride.date) <= stringToDate(queryToDate)
           )
+      .reduce(
+        (acc, curr) => {
+          acc.distance += curr.distance
+          acc.cost += curr.cost
+          return acc
+        },
+        {
+          cost: 0,
+          distance: 0,
+        }
         )
+
+    res.status(200).send(accumulatedCostAndDistance)
     } catch (error) {
       res.status(400).send(error)
     }
