@@ -12,7 +12,7 @@ import Ride from './models/Ride';
 
 const app = express()
 const port = 3004;
-let rides: IRide[] = []
+let rides: Ride[] = []
 
 app.use(express.json());
 app.use(express.urlencoded());
