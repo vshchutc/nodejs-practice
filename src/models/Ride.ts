@@ -2,7 +2,7 @@ interface Ride {
     startAddress: string
     endAddress: string
     cost: number
-    date: Date
+    date: string
     distance: number
 }
 export default Ride;

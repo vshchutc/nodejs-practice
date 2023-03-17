@@ -1,39 +1,35 @@
-import { getUnixTime } from 'date-fns';
-
-import express from 'express';
+import express from 'express'
 import {
   stringToDate,
   validateCost,
   validateDate,
   validateDistance,
-  validateEndAddress, 
-  validateStartAddress } 
-  from './input-validations';
+  validateEndAddress,
+  validateStartAddress,
+} from './input-validations'
 import Ride from './models/Ride';
-
 const app = express()
-const port = 3004;
-let rides: Ride[] = []
+app.use(express.json())
+const port = 3004
 
-app.use(express.json());
-app.use(express.urlencoded());
+export let rides: Ride[] = []
 
 app.post('/rides', async (req, res) => {
   const payload = req.body
 
-    try {
+  try {
     const ride: Ride = {
-            startAddress: validateStartAddress(payload.startAddress as string),
-            endAddress: validateEndAddress(payload.endAddress as string),
-            cost: validateCost(payload.cost as string),
-            date: validateDate(payload.date as string),
-            distance: validateDistance(payload.distance as string),
-        }
-        rides.push(ride)
-    res.status(200).send()
-    } catch (error) {
-        res.status(400).send(error)
+      startAddress: validateStartAddress(payload.startAddress as string),
+      endAddress: validateEndAddress(payload.endAddress as string),
+      cost: validateCost(payload.cost as string),
+      date: validateDate(payload.date as string),
+      distance: validateDistance(payload.distance as string),
     }
+    rides.push(ride)
+    res.status(200).send()
+  } catch (error) {
+    res.status(400).send(error)
+  }
 })
 
 app.get('/rides', (req, res) => {
@@ -41,7 +37,7 @@ app.get('/rides', (req, res) => {
 })
 
 app.get('/rides/:date', (req, res) => {
-    try {
+  try {
     const queryDate = validateDate(req.params.date as string)
 
     const accumulatedCostAndDistance = rides
@@ -59,13 +55,13 @@ app.get('/rides/:date', (req, res) => {
       )
 
     res.status(200).send(accumulatedCostAndDistance)
-    } catch (error) {
-      res.status(400).send(error)
-    }
-  })
-  
+  } catch (error) {
+    res.status(400).send(error)
+  }
+})
+
 app.get('/rides/:fromdate/:todate', (req, res) => {
-    try {
+  try {
     const queryFromDate = validateDate(req.params.fromdate as string)
     const queryToDate = validateDate(req.params.todate as string)
 
@@ -78,7 +74,7 @@ app.get('/rides/:fromdate/:todate', (req, res) => {
         (ride) =>
           stringToDate(ride.date) >= stringToDate(queryFromDate) &&
           stringToDate(ride.date) <= stringToDate(queryToDate)
-          )
+      )
       .reduce(
         (acc, curr) => {
           acc.distance += curr.distance
@@ -89,14 +85,16 @@ app.get('/rides/:fromdate/:todate', (req, res) => {
           cost: 0,
           distance: 0,
         }
-        )
+      )
 
     res.status(200).send(accumulatedCostAndDistance)
-    } catch (error) {
-      res.status(400).send(error)
-    }
-  })
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
-  })
+  } catch (error) {
+    res.status(400).send(error)
+  }
+})
 
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`)
+})
+
+export default app

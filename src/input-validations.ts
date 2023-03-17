@@ -1,4 +1,4 @@
-import { format, isValid, parse, parseISO } from 'date-fns'
+import { format, isValid, parseISO } from 'date-fns'
 
 // RegExp to check if a string can be parsed as a decimal number
 //
@@ -58,7 +58,7 @@ export function validateCost(cost: string): number {
 }
 
 export function validateDistance(distance: string): number {
-  if (!distance) throw(`Please enter the distance of the ride`)
+  if (!distance) throw `Please enter the distance of the ride`
 
   if (!decimalCheck.test(distance)) {
     throw `Distance "${distance}" is not in the correct format. Please enter a number, with dot as a separator if needed.`
